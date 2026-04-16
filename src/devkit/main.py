@@ -2,6 +2,9 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 from devkit.commands import github, ai, workflow
+from devkit.utils.check import check_tools
+
+check_tools()
 
 app = typer.Typer(
     name='devkit',
@@ -23,3 +26,4 @@ def main(ctx: typer.Context):
 
 if __name__ == '__main__':
     app()
+
