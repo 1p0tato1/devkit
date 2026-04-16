@@ -1,10 +1,10 @@
 import typer
-from devkit.commands import github
+from devkit.commands import github, ai
 
-app = typer.Typer(name="devkit", help="Mon assistant de dev IA")
+app = typer.Typer(name="devkit")
 
-# On ajoute le groupe de commandes 'gh'
 app.add_typer(github.app, name="gh")
+app.add_typer(ai.app, name="ai")
 
 if __name__ == "__main__":
     app()
