@@ -6,6 +6,7 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.prompt import Confirm, Prompt
 from devkit.utils.gh import gh, gh_json
+from devkit.config import load_config
 
 app = typer.Typer()
 console = Console()
@@ -15,7 +16,6 @@ console = Console()
 @app.command()
 def explain(command: str = typer.Argument(..., help='Shell command to explain')):
     """Ask Copilot CLI to explain a shell command."""
-    # On utilise la syntaxe suggérée par ton erreur : gh copilot -p "explain ..."
     full_cmd = f'gh copilot -p "explain {command}"'
     
     result = subprocess.run(
@@ -31,7 +31,6 @@ def explain(command: str = typer.Argument(..., help='Shell command to explain'))
 @app.command()
 def suggest(task: str = typer.Argument(..., help='Task to accomplish')):
     """Ask Copilot CLI to suggest a command."""
-    # Même logique pour suggest
     full_cmd = f'gh copilot -p "suggest {task}"'
     
     result = subprocess.run(
@@ -45,48 +44,62 @@ def suggest(task: str = typer.Argument(..., help='Task to accomplish')):
     console.print(Panel(output, title='[purple]Copilot Suggestion[/purple]', border_style="purple"))
 
 
-# --- STEP 8: The AI Review Pipeline ---
+# --- STEP 8: The AI Review Pipeline (Config Aware) ---
 
 @app.command()
 def review(
     pr_number: int = typer.Argument(..., help='PR number to review'),
-    model: str = typer.Option('gemini', help='AI tool: gemini or claude'),
+    model: str = typer.Option(None, help='AI tool: gemini or claude (overrides config)'),
 ):
     """AI-powered code review of a pull request."""
+    # Chargement de la config pour respecter le choix de l'utilisateur
+    config = load_config()
+    selected_model = model or config.get('ai_tool', 'gemini')
+
     with Progress(SpinnerColumn(), TextColumn('{task.description}')) as progress:
         t = progress.add_task('Fetching PR diff...')
         try:
             diff = gh('pr', 'diff', str(pr_number))
-            progress.update(t, description=f'Running {model} review...')
+            progress.update(t, description=f'Running {selected_model} review...')
             
-            if model == 'gemini':
-                # Appelle ton simulateur /usr/local/bin/gemini
-                result = subprocess.run(['gemini', f'Review: {diff[:2000]}'], capture_output=True, text=True)
+            prompt = f"Review this PR: {diff[:2000]}"
+            
+            if selected_model == 'gemini':
+                result = subprocess.run(['gemini', prompt], capture_output=True, text=True)
             else:
-                result = subprocess.run(['claude', '--no-interactive', f'Review: {diff[:2000]}'], capture_output=True, text=True)
+                result = subprocess.run(['claude', '--no-interactive', prompt], capture_output=True, text=True)
             
             output = result.stdout.strip() if result.stdout.strip() else "No feedback received."
-            console.print(Panel(output, title=f'[cyan]AI Review — PR #{pr_number}[/cyan]', border_style="cyan"))
+            console.print(Panel(output, title=f'[cyan]AI Review ({selected_model}) — PR #{pr_number}[/cyan]', border_style="cyan"))
         except Exception as e:
             console.print(f"[red]Error: {e}[/red]")
 
 
-# --- STEP 9: Smart Commit Message Generator ---
+# --- STEP 9: Smart Commit Message Generator (Config Aware) ---
 
 @app.command()
 def commit():
     """Generate a commit message from staged changes using AI."""
+    config = load_config()
+    selected_model = config.get('ai_tool', 'claude')
+
     try:
         diff = subprocess.check_output(['git', 'diff', '--staged'], text=True)
         if not diff.strip():
             console.print('[yellow]No staged changes. Use "git add" first.[/yellow]')
             return
 
-        with console.status("[bold green]Generating commit message...[/bold green]"):
-            result = subprocess.run(['claude', '--no-interactive', 'Generate commit message'], capture_output=True, text=True)
+        with console.status(f"[bold green]Generating commit message with {selected_model}...[/bold green]"):
+            prompt = f"Write a conventional commit message for: {diff[:2000]}"
+            
+            if selected_model == 'gemini':
+                result = subprocess.run(['gemini', prompt], capture_output=True, text=True)
+            else:
+                result = subprocess.run(['claude', '--no-interactive', prompt], capture_output=True, text=True)
+            
             suggested = result.stdout.strip()
 
-        console.print(Panel(suggested, title='[green]Suggested Commit Message[/green]'))
+        console.print(Panel(suggested, title=f'[green]Suggested Message ({selected_model})[/green]'))
         
         if Confirm.ask('Use this message?'):
             subprocess.run(['git', 'commit', '-m', suggested])

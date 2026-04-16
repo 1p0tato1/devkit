@@ -3,3 +3,4 @@ Name: devkit
 Version: 0.1.0
 Requires-Dist: typer[all]
 Requires-Dist: rich
+Requires-Dist: google-generativeai

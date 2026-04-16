@@ -1,5 +1,6 @@
 pyproject.toml
 src/devkit/__init__.py
+src/devkit/config.py
 src/devkit/main.py
 src/devkit.egg-info/PKG-INFO
 src/devkit.egg-info/SOURCES.txt
@@ -7,5 +8,9 @@ src/devkit.egg-info/dependency_links.txt
 src/devkit.egg-info/entry_points.txt
 src/devkit.egg-info/requires.txt
 src/devkit.egg-info/top_level.txt
+src/devkit/commands/ai.py
 src/devkit/commands/github.py
+src/devkit/commands/workflow.py
+src/devkit/utils/display.py
 src/devkit/utils/gh.py
+src/devkit/utils/shell.py

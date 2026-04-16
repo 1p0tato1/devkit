@@ -1,10 +1,25 @@
 import typer
-from devkit.commands import github, ai
+from rich.console import Console
+from rich.panel import Panel
+from devkit.commands import github, ai, workflow
 
-app = typer.Typer(name="devkit")
+app = typer.Typer(
+    name='devkit',
+    help='AI-powered developer toolkit',
+    rich_markup_mode='rich',
+)
+console = Console()
 
-app.add_typer(github.app, name="gh")
-app.add_typer(ai.app, name="ai")
+# Enregistrement des groupes de commandes
+app.add_typer(github.app, name='gh', help='GitHub operations')
+app.add_typer(ai.app, name='ai', help='AI tools (Copilot, Gemini, Claude)')
+app.add_typer(workflow.app, name='workflow', help='End-to-end dev workflows')
 
-if __name__ == "__main__":
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context):
+    if ctx.invoked_subcommand is None:
+        console.print(Panel('Welcome to [bold cyan]devkit[/bold cyan]', border_style='cyan'))
+        console.print(ctx.get_help())
+
+if __name__ == '__main__':
     app()

@@ -1,4 +1,5 @@
 import typer
+import subprocess
 from rich.console import Console
 from rich.table import Table
 from devkit.utils.gh import gh_json
@@ -6,32 +7,33 @@ from devkit.utils.gh import gh_json
 app = typer.Typer()
 console = Console()
 
-@app.command()
-def issues(
-    repo: str = typer.Option('', help='owner/repo (par défaut: repo actuel)'),
-    limit: int = typer.Option(15, help='Nombre max d\'issues'),
-):
-    """Liste les issues ouvertes dans un beau tableau."""
-    args = ['issue', 'list', '--json', 'number,title,state,labels', '--limit', str(limit)]
-    if repo:
-        args += ['--repo', repo]
-    
-    try:
-        data = gh_json(*args)
-        
-        table = Table(title="Issues Ouvertes", border_style="green")
-        table.add_column("#", style="cyan", width=6)
-        table.add_column("Titre", min_width=30)
-        table.add_column("Labels", width=20)
+def fzf_select(items: list[str], prompt: str = 'Select > ') -> str:
+    """Fait passer une liste dans fzf et retourne la ligne sélectionnée."""
+    proc = subprocess.run(
+        ['fzf', f'--prompt={prompt}', '--height=40%', '--border'],
+        input='\n'.join(items),
+        capture_output=True, text=True
+    )
+    return proc.stdout.strip()
 
-        for issue in data:
-            labels = ", ".join(l['name'] for l in issue.get('labels', []))
-            table.add_row(str(issue['number']), issue['title'], labels or "—")
-        
-        console.print(table)
-    except Exception as e:
-        console.print(f"[red]Erreur lors de la récupération des issues : {e}[/red]")
-# ... garde le code précédent et ajoute ceci :
+@app.command()
+def issues(interactive: bool = typer.Option(False, "--interactive", "-i", help="Mode interactif avec fzf")):
+    """Liste les issues et permet d'en ouvrir une en mode interactif."""
+    data = gh_json('issue', 'list', '--json', 'number,title')
+    
+    if interactive:
+        lines = [f"#{i['number']} {i['title']}" for i in data]
+        if not lines:
+            print("Aucune issue trouvée.")
+            return
+        selected = fzf_select(lines, prompt='Issue > ')
+        if selected:
+            issue_num = selected.split()[0].lstrip('#')
+            # Ouvre l'issue dans le navigateur
+            subprocess.run(['gh', 'issue', 'view', issue_num, '--web'])
+    else:
+        for i in data:
+            print(f"#{i['number']} {i['title']}")
 
 @app.command()
 def pr_summary(number: int):
