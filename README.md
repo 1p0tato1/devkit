@@ -86,7 +86,7 @@ You should see the `devkit` help menu with all available commands. You're ready 
 
 See `devkit` in action with a full end-to-end terminal recording:
 
-https://github.com/1p0tato1/devkit/video-demo.mp4
+https://github.com/1p0tato1/devkit/raw/main/video-demo.mp4
 
 ---
 
