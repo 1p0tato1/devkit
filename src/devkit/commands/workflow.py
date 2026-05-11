@@ -23,21 +23,21 @@ def feature_start(
         subprocess.run(['git', 'checkout', '-b', branch], check=True, capture_output=True)
         console.print(f'[green]✓[/green] Created branch: [bold]{branch}[/bold]')
         
-        # 2. Push de la branche
+        # 2. Push de la branche (avec un commit vide obligatoire pour la PR)
+        subprocess.run(['git', 'commit', '--allow-empty', '-m', f'chore: start {name}'], check=True, capture_output=True)
         subprocess.run(['git', 'push', '-u', 'origin', branch], check=True, capture_output=True)
     except subprocess.CalledProcessError as e:
         console.print(f"[red]Erreur Git : {e.stderr.decode()}[/red]")
         return
 
-    # 3. Création de la Draft PR
+    # 3. Création de la Draft PR (Correction du double --body)
     pr_title = name.replace('-', ' ').title()
-    pr_args = ['pr', 'create', '--draft', '--title', pr_title, '--body', '']
-    if issue:
-        pr_args += ['--body', f'Closes #{issue}']
+    pr_body = f'Closes #{issue}' if issue else ''
+    pr_args = ['pr', 'create', '--draft', '--title', pr_title, '--body', pr_body]
     
     pr_url = gh(*pr_args)
     console.print(f'[green]✓[/green] Draft PR created: [blue]{pr_url}[/blue]')
-
+    
     # 4. Scaffold IA (Plan d'implémentation)
     if issue:
         with console.status("[bold cyan]Consulting AI for implementation plan...[/bold cyan]"):
@@ -46,7 +46,7 @@ def feature_start(
             
             # Utilise l'outil configuré (claude par défaut)
             tool = config.get('ai_tool', 'claude')
-            plan = subprocess.run([tool, '--no-interactive', prompt], capture_output=True, text=True)
+            plan = subprocess.run([f"{tool}.bat", '--no-interactive', prompt], capture_output=True, text=True)
             
         console.print(Panel(plan.stdout.strip(), title='[cyan]AI Implementation Plan[/cyan]', border_style='cyan'))
     

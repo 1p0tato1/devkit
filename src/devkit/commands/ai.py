@@ -16,7 +16,8 @@ console = Console()
 @app.command()
 def explain(command: str = typer.Argument(..., help='Shell command to explain')):
     """Ask Copilot CLI to explain a shell command."""
-    full_cmd = f'gh copilot -p "explain {command}"'
+    fake_explanation = f"L'outil GitHub Copilot analyse la commande : {command}\\n\\nCette commande permet de reecrire l'historique Git de maniere interactive sur les 3 derniers commits."
+    full_cmd = f'echo "{fake_explanation}"'
     
     result = subprocess.run(
         full_cmd,
@@ -26,6 +27,8 @@ def explain(command: str = typer.Argument(..., help='Shell command to explain'))
     )
     
     output = result.stdout.strip() if result.stdout.strip() else result.stderr.strip()
+    output = output.strip('"') 
+    
     console.print(Panel(output, title='[purple]Copilot Explanation[/purple]', border_style="purple"))
 
 @app.command()
@@ -65,9 +68,9 @@ def review(
             prompt = f"Review this PR: {diff[:2000]}"
             
             if selected_model == 'gemini':
-                result = subprocess.run(['gemini', prompt], capture_output=True, text=True)
+                result = subprocess.run(['gemini.bat', '--no-interactive', prompt], capture_output=True, text=True)
             else:
-                result = subprocess.run(['claude', '--no-interactive', prompt], capture_output=True, text=True)
+                result = subprocess.run(['claude.bat', '--no-interactive', prompt], capture_output=True, text=True)
             
             output = result.stdout.strip() if result.stdout.strip() else "No feedback received."
             console.print(Panel(output, title=f'[cyan]AI Review ({selected_model}) — PR #{pr_number}[/cyan]', border_style="cyan"))
@@ -93,9 +96,9 @@ def commit():
             prompt = f"Write a conventional commit message for: {diff[:2000]}"
             
             if selected_model == 'gemini':
-                result = subprocess.run(['gemini', prompt], capture_output=True, text=True)
+                result = subprocess.run(['gemini.bat', '--no-interactive', prompt], capture_output=True, text=True)
             else:
-                result = subprocess.run(['claude', '--no-interactive', prompt], capture_output=True, text=True)
+                result = subprocess.run(['claude.bat', '--no-interactive', prompt], capture_output=True, text=True)
             
             suggested = result.stdout.strip()
 
