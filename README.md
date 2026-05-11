@@ -219,29 +219,3 @@ devkit/
 ├── pyproject.toml
 └── README.md
 ```
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! To contribute:
-
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `devkit ai commit` 😉
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
-
----
-
-<div align="center">
-
-Made with ❤️ and ☕ · Built for developers, by developers
-
-</div>
