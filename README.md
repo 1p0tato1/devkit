@@ -101,91 +101,96 @@ https://github.com/1p0tato1/devkit/raw/main/video-demo.mp4
 | `devkit workflow` | Automated Git + GitHub workflows |
 
 ---
+## 🛠️ DevKit — Key Features & Demo
 
-### 1️⃣ `devkit gh issues` — List GitHub Issues
-
-Instantly fetch and display all open issues for the current repository. No browser required.
+### 1️⃣ `devkit gh issues` — Overview of Work
+We begin by listing pending tasks. The tool generates an elegant, color-coded table using the Rich library.
 
 ```bash
 $ devkit gh issues
-#1 Ma première issue
+          GitHub Open Issues           
+┏━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  ID ┃ Title                         ┃
+┡━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ #10 │ Performance optimization      │
+│  #9 │ UI Redesign                   │
+│  #1 │ My first issue                │
+└─────┴───────────────────────────────┘
 ```
-
-**Why it's useful:** Get a quick overview of open work items directly in your terminal, keeping you in the flow without context switching.
+> **Key Benefit:** Stay in the terminal to pick your next task without ever opening a browser.
 
 ---
 
-### 2️⃣ `devkit ai review <pr_number>` — AI-Powered PR Review
-
-Fetch the diff of any pull request and have an AI model (Claude by default) analyze it, providing an instant code review summary.
+### 2️⃣ `devkit gh pr-summary` & `ai review` — Code Analysis
+Before coding, we analyze existing work. This step combines GitHub data retrieval with Artificial Intelligence.
 
 ```bash
-$ devkit ai review 5
-⠹ Fetching PR diff...
-╭──────────────────────── AI Review (claude) — PR #5 ────────────────────────╮
-│ Simulation de Claude : Plan d'action genere avec succes.                   │
-╰────────────────────────────────────────────────────────────────────────────╯
-```
+# Step A: Technical PR Summary
+$ devkit gh pr-summary 8
+── PR #8 : Demo Perfect1 ──
+Modified files: src/devkit/commands/ai.py, workflow.py...
 
-**Why it's useful:** Get an immediate second opinion on pull requests before merging. The AI highlights potential issues, summarizes changes, and helps maintain code quality — in seconds.
+# Step B: AI Code Review
+$ devkit ai review 8
+⠸ Running claude review...
+╭─────────────────────────── AI Review (claude) — PR #8 ────────────────────────────╮
+│ Claude Simulation: Action plan generated successfully.                            │
+╰───────────────────────────────────────────────────────────────────────────────────╯
+```
+> **Key Benefit:** Provides a "dual-vision" approach: a factual list of modified files paired with an AI critical analysis to ensure top-tier code quality.
 
 ---
 
-### 3️⃣ `devkit workflow feature-start` — Start a Feature Branch
-
-Automate the entire feature-start workflow in one command: create a properly named branch, open a Draft PR on GitHub, and generate an AI implementation plan — all at once.
+### 3️⃣ `devkit workflow feature-start` — Full Automation
+The core of the tool. A single command to automate 5 minutes of manual, repetitive tasks.
 
 ```bash
-$ devkit workflow feature-start "demo-finale" --issue 2
+$ devkit workflow feature-start "demo-finale" --issue 5
 ─────────────────────────────── Starting Feature ───────────────────────────────
 ✓ Created branch: feature/demo-finale
-✓ Draft PR created: https://github.com/1p0tato1/devkit/pull/5
+✓ Draft PR created: https://github.com/1p0tato1/devkit/pull/11
 ╭────────────────────────── AI Implementation Plan ──────────────────────────╮
-│ Simulation de Claude : Plan d'action genere avec succes.                   │
+│ Claude Simulation: Action plan generated successfully.                     │
 ╰────────────────────────────────────────────────────────────────────────────╯
 ──────────────────────────────── Ready to code! ────────────────────────────────
 ```
-
-**Why it's useful:** Eliminates the repetitive boilerplate of starting a new feature: no more manually typing `git checkout -b`, `git push`, and then opening a PR in the browser. One command does it all, and you even get an AI-generated plan to guide your implementation.
+> **Key Benefit:** Automates branch creation, initial push, Draft PR opening, and generates an AI implementation plan in one single action.
 
 ---
 
-### 4️⃣ `devkit ai commit` — AI-Generated Commit Messages
-
-Let the AI analyze your staged changes and suggest a meaningful, conventional commit message. You stay in control — just confirm or reject the suggestion.
+### 4️⃣ `devkit ai commit` — Intelligent Documentation
+Once the code is modified, the AI analyzes the diff to suggest a relevant and descriptive commit message.
 
 ```bash
+# Prepare your changes
+$ git add test.txt
+
+# Let the AI draft the message
 $ devkit ai commit
 ╭──────────────────────── Suggested Message (claude) ────────────────────────╮
-│ Simulation de Claude : Plan d'action genere avec succes.                   │
+│ Claude Simulation: Action plan generated successfully.                     │
 ╰────────────────────────────────────────────────────────────────────────────╯
 Use this message? [y/n]: y
-[feature/demo-finale 04c0e8b] Simulation de Claude : Plan d'action genere avec succes.
- 1 file changed, 0 insertions(+), 0 deletions(-)
- create mode 100644 README.md
+[feature/demo-finale f80618e] Claude Simulation: Action plan generated...
 ✓ Committed!
 ```
-
-**Why it's useful:** Writing good commit messages is time-consuming and often overlooked. `devkit ai commit` ensures every commit is descriptive and meaningful, improving project history readability for the entire team.
+> **Key Benefit:** Guarantees a clean, meaningful Git history with zero effort from the developer.
 
 ---
 
-### 5️⃣ `devkit ai explain <command>` — Explain Any Shell Command
-
-Paste any unfamiliar Git or shell command and get a plain-language explanation powered by GitHub Copilot. Perfect for learning or onboarding.
+### 5️⃣ `devkit ai explain` — Learning & Onboarding
+A pedagogical assistant that helps decode complex or unfamiliar commands.
 
 ```bash
 $ devkit ai explain "git rebase -i HEAD~3"
 ╭─────────────────────────── Copilot Explanation ────────────────────────────╮
-│ L'outil GitHub Copilot analyse la commande : git rebase -i HEAD~3          │
+│ GitHub Copilot tool is analyzing: git rebase -i HEAD~3                     │
 │                                                                            │
-│ Cette commande permet de reecrire l'historique Git de maniere interactive  │
-│ sur les 3 derniers commits.                                                │
+│ This command allows you to interactively rewrite the Git history for the   │
+│ last 3 commits.                                                            │
 ╰────────────────────────────────────────────────────────────────────────────╯
 ```
-
-**Why it's useful:** Demystifies complex shell commands on the spot. Instead of breaking focus to search Stack Overflow or documentation, get an instant, context-aware explanation right in your terminal.
-
+> **Key Benefit:** Leverages the power of Copilot to explain any shell command, making it perfect for quick learning and smooth onboarding.
 ---
 
 ## 🏗️ Tech Stack

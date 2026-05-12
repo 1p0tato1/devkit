@@ -21,19 +21,27 @@ def issues(interactive: bool = typer.Option(False, "--interactive", "-i", help="
     """Liste les issues et permet d'en ouvrir une en mode interactif."""
     data = gh_json('issue', 'list', '--json', 'number,title')
     
+    if not data:
+        console.print("[yellow]Aucune issue trouvée.[/yellow]")
+        return
+
     if interactive:
         lines = [f"#{i['number']} {i['title']}" for i in data]
-        if not lines:
-            print("Aucune issue trouvée.")
-            return
         selected = fzf_select(lines, prompt='Issue > ')
         if selected:
             issue_num = selected.split()[0].lstrip('#')
-            # Ouvre l'issue dans le navigateur
             subprocess.run(['gh', 'issue', 'view', issue_num, '--web'])
     else:
+        # --- LA PARTIE À MODIFIER ---
+        table = Table(title="GitHub Open Issues", border_style="magenta")
+        table.add_column("ID", style="cyan", justify="right")
+        table.add_column("Titre", style="white")
+
         for i in data:
-            print(f"#{i['number']} {i['title']}")
+            table.add_row(f"#{i['number']}", i['title'])
+        
+        console.print(table)
+        # ----------------------------
 
 @app.command()
 def pr_summary(number: int):
